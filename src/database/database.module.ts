@@ -17,7 +17,9 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>("MONGODB_CLUSTER2_URI"),
+        uri: configService.get<string>(
+          "mongodb+srv://tiroleza:123Mudar@smartparkcluster0.n3t1c1r.mongodb.net/?retryWrites=true&w=majority&appName=SmartParkCluster0"
+        ),
         connectionName: "cluster2",
       }),
       inject: [ConfigService],
