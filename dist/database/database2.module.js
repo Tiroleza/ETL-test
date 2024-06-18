@@ -6,33 +6,26 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DatabaseModule = void 0;
+exports.Database2Module = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const config_1 = require("@nestjs/config");
-let DatabaseModule = class DatabaseModule {
+let Database2Module = class Database2Module {
 };
-exports.DatabaseModule = DatabaseModule;
-exports.DatabaseModule = DatabaseModule = __decorate([
+exports.Database2Module = Database2Module;
+exports.Database2Module = Database2Module = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot(),
             mongoose_1.MongooseModule.forRootAsync({
                 imports: [config_1.ConfigModule],
                 useFactory: async (configService) => ({
-                    uri: configService.get("mongodb+srv://tiroleza:123Mudar@predatacluster.ntzlog5.mongodb.net/?retryWrites=true&w=majority&appName=PreDataCluster"),
-                }),
-                inject: [config_1.ConfigService],
-            }),
-            mongoose_1.MongooseModule.forRootAsync({
-                imports: [config_1.ConfigModule],
-                useFactory: async (configService) => ({
-                    uri: configService.get("MONGODB_CLUSTER2_URI"),
+                    uri: configService.get("mongodb+srv://tiroleza:123Mudar@smartparkcluster0.n3t1c1r.mongodb.net/?retryWrites=true&w=majority&appName=SmartParkCluster0"),
                     connectionName: "cluster2",
                 }),
                 inject: [config_1.ConfigService],
             }),
         ],
     })
-], DatabaseModule);
-//# sourceMappingURL=database.module.js.map
+], Database2Module);
+//# sourceMappingURL=database2.module.js.map

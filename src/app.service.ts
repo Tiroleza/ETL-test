@@ -12,9 +12,9 @@ import { DadoTransformadoDto } from "./schemas/dadoTransformado.dto";
 @Injectable()
 export class EtlService {
   constructor(
-    @InjectModel(Dado.name) private dadoModel: Model<DadoDocument>,
+    @InjectModel(Dado.name, "cluster1") private readonly dadoModel: Model<Dado>,
     @InjectModel(DadoTransformado.name, "cluster2")
-    private dadoTransformadoModel: Model<DadoTransformadoDocument>
+    private readonly dadoTransformadoModel: Model<DadoTransformado>
   ) {}
 
   async criarDado(valorOriginal: string): Promise<Dado> {

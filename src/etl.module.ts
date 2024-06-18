@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { EtlController } from "./app.controller"; // Certifique-se que o caminho está correto
+import { EtlController } from "./app.controller";
 import { EtlService } from "./app.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Dado, DadoSchema } from "./schemas/dado.schema";
@@ -13,7 +13,10 @@ import { ScheduleModule } from "@nestjs/schedule";
 @Module({
   imports: [
     DatabaseModule,
-    MongooseModule.forFeature([{ name: Dado.name, schema: DadoSchema }]),
+    MongooseModule.forFeature(
+      [{ name: Dado.name, schema: DadoSchema }],
+      "cluster1"
+    ),
     MongooseModule.forFeature(
       [{ name: DadoTransformado.name, schema: DadoTransformadoSchema }],
       "cluster2"
@@ -23,4 +26,4 @@ import { ScheduleModule } from "@nestjs/schedule";
   controllers: [EtlController],
   providers: [EtlService],
 })
-export class AppModule {}
+export class EtlModule {}

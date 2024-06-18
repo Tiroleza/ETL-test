@@ -24,13 +24,13 @@
 /// <reference types="mongoose/types/inferschematype" />
 /// <reference types="mongoose/types/inferrawdoctype" />
 import { Model } from "mongoose";
-import { Dado, DadoDocument } from "./schemas/dado.schema";
-import { DadoTransformadoDocument } from "./schemas/dadoTransformado.schema";
+import { Dado } from "./schemas/dado.schema";
+import { DadoTransformado } from "./schemas/dadoTransformado.schema";
 import { DadoTransformadoDto } from "./schemas/dadoTransformado.dto";
 export declare class EtlService {
-    private dadoModel;
-    private dadoTransformadoModel;
-    constructor(dadoModel: Model<DadoDocument>, dadoTransformadoModel: Model<DadoTransformadoDocument>);
+    private readonly dadoModel;
+    private readonly dadoTransformadoModel;
+    constructor(dadoModel: Model<Dado>, dadoTransformadoModel: Model<DadoTransformado>);
     criarDado(valorOriginal: string): Promise<Dado>;
     listarDadosTransformados(): Promise<DadoTransformadoDto[]>;
     realizarEtl(): Promise<void>;

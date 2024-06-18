@@ -4,26 +4,24 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 
 @Module({
   imports: [
-    ConfigModule.forRoot(), // Carrega as variáveis de ambiente do arquivo .env
+    ConfigModule.forRoot(),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>(
-          "mongodb+srv://tiroleza:123Mudar@predatacluster.ntzlog5.mongodb.net/?retryWrites=true&w=majority&appName=PreDataCluster"
-        ),
+        uri: configService.get<string>("MONGODB_URI_CLUSTER1"),
       }),
       inject: [ConfigService],
+      connectionName: "cluster1",
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>(
-          "mongodb+srv://tiroleza:123Mudar@smartparkcluster0.n3t1c1r.mongodb.net/?retryWrites=true&w=majority&appName=SmartParkCluster0"
-        ),
-        connectionName: "cluster2",
+        uri: configService.get<string>("MONGODB_URI_CLUSTER2"),
       }),
       inject: [ConfigService],
+      connectionName: "cluster2",
     }),
   ],
+  exports: [MongooseModule],
 })
 export class DatabaseModule {}

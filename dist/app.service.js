@@ -54,7 +54,7 @@ __decorate([
 ], EtlService.prototype, "realizarEtl", null);
 exports.EtlService = EtlService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, mongoose_1.InjectModel)(dado_schema_1.Dado.name)),
+    __param(0, (0, mongoose_1.InjectModel)(dado_schema_1.Dado.name, "cluster1")),
     __param(1, (0, mongoose_1.InjectModel)(dadoTransformado_schema_1.DadoTransformado.name, "cluster2")),
     __metadata("design:paramtypes", [mongoose_2.Model,
         mongoose_2.Model])
