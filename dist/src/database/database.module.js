@@ -9,13 +9,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatabaseModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
+const config_1 = require("@nestjs/config");
 let DatabaseModule = class DatabaseModule {
 };
 exports.DatabaseModule = DatabaseModule;
 exports.DatabaseModule = DatabaseModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forRoot('mongodb+srv://admin:smartpass4202@smartparkcluster0.n3t1c1r.mongodb.net/?retryWrites=true&w=majority&appName=SmartParkCluster0'),
+            config_1.ConfigModule.forRoot(),
+            mongoose_1.MongooseModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: async (configService) => ({
+                    uri: configService.get("mongodb+srv://tiroleza:123Mudar@predatacluster.ntzlog5.mongodb.net/?retryWrites=true&w=majority&appName=PreDataCluster"),
+                }),
+                inject: [config_1.ConfigService],
+            }),
+            mongoose_1.MongooseModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: async (configService) => ({
+                    uri: configService.get("MONGODB_CLUSTER2_URI"),
+                    connectionName: "cluster2",
+                }),
+                inject: [config_1.ConfigService],
+            }),
         ],
     })
 ], DatabaseModule);

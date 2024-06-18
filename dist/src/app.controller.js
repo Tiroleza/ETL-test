@@ -12,59 +12,50 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EstacionamentoController = void 0;
+exports.EtlController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
-const criar_estacionamento_dto_1 = require("./dto/criar-estacionamento.dto");
-let EstacionamentoController = class EstacionamentoController {
-    constructor(estacionamentoService) {
-        this.estacionamentoService = estacionamentoService;
+const dadoCriar_dto_1 = require("./schemas/dadoCriar.dto");
+let EtlController = class EtlController {
+    constructor(etlService) {
+        this.etlService = etlService;
     }
-    async criar(criarEstacionamentoDto) {
+    async criar(criarDadoDto) {
         try {
-            const estacionamento = await this.estacionamentoService.criarEstacionamento(criarEstacionamentoDto.placa);
-            console.log('Placa registrada com sucesso:', estacionamento.placa);
-            return estacionamento;
+            const dado = await this.etlService.criarDado(criarDadoDto.valorOriginal);
+            return dado;
         }
         catch (error) {
-            if (error instanceof common_1.HttpException) {
-                throw error;
+            if (error.code === 11000) {
+                throw new common_1.HttpException("Dado já cadastrado", common_1.HttpStatus.CONFLICT);
             }
             else {
-                throw new common_1.HttpException('Erro ao registrar a placa', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new common_1.HttpException("Erro ao registrar o dado", common_1.HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
     }
-    async listarPlacas() {
-        try {
-            const placas = await this.estacionamentoService.listarEstacionamentos();
-            return {
-                message: 'Placas listadas com sucesso',
-                data: placas,
-            };
-        }
-        catch (error) {
-            throw new common_1.HttpException('Erro ao listar placas', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    async listarDadosTransformados() {
+        const dados = await this.etlService.listarDadosTransformados();
+        return dados;
     }
 };
-exports.EstacionamentoController = EstacionamentoController;
+exports.EtlController = EtlController;
 __decorate([
-    (0, common_1.Post)('/estacionamentos'),
-    (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),
+    (0, common_1.Post)(),
+    (0, common_1.UsePipes)(new common_1.ValidationPipe({ whitelist: true })),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [criar_estacionamento_dto_1.PlacaDto]),
+    __metadata("design:paramtypes", [dadoCriar_dto_1.CriarDadoDto]),
     __metadata("design:returntype", Promise)
-], EstacionamentoController.prototype, "criar", null);
+], EtlController.prototype, "criar", null);
 __decorate([
-    (0, common_1.Get)('/listar-placas'),
+    (0, common_1.Get)("listar-dados-transformados"),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], EstacionamentoController.prototype, "listarPlacas", null);
-exports.EstacionamentoController = EstacionamentoController = __decorate([
-    (0, common_1.Controller)(''),
-    __metadata("design:paramtypes", [app_service_1.EstacionamentoService])
-], EstacionamentoController);
+], EtlController.prototype, "listarDadosTransformados", null);
+exports.EtlController = EtlController = __decorate([
+    (0, common_1.Controller)("dados"),
+    __metadata("design:paramtypes", [app_service_1.EtlService])
+], EtlController);
 //# sourceMappingURL=app.controller.js.map

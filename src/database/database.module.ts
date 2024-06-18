@@ -1,11 +1,27 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Module } from "@nestjs/common";
+import { MongooseModule } from "@nestjs/mongoose";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      'mongodb+srv://admin:smartpass4202@smartparkcluster0.n3t1c1r.mongodb.net/?retryWrites=true&w=majority&appName=SmartParkCluster0',
-    ),
+    ConfigModule.forRoot(), // Carrega as variáveis de ambiente do arquivo .env
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>(
+          "mongodb+srv://tiroleza:123Mudar@predatacluster.ntzlog5.mongodb.net/?retryWrites=true&w=majority&appName=PreDataCluster"
+        ),
+      }),
+      inject: [ConfigService],
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>("MONGODB_CLUSTER2_URI"),
+        connectionName: "cluster2",
+      }),
+      inject: [ConfigService],
+    }),
   ],
 })
 export class DatabaseModule {}

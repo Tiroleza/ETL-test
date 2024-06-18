@@ -1,56 +1,43 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
   UsePipes,
   ValidationPipe,
   HttpException,
   HttpStatus,
-  Get,
-} from '@nestjs/common';
-import { EstacionamentoService } from './app.service';
-import { PlacaDto } from './dto/criar-estacionamento.dto';
+} from "@nestjs/common";
+import { EtlService } from "./app.service";
+import { CriarDadoDto } from "./schemas/dadoCriar.dto";
+import { DadoTransformadoDto } from "./schemas/dadoTransformado.dto";
 
-@Controller('')
-export class EstacionamentoController {
-  constructor(private readonly estacionamentoService: EstacionamentoService) {}
+@Controller("dados")
+export class EtlController {
+  constructor(private readonly etlService: EtlService) {}
 
-  @Post('/estacionamentos')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async criar(@Body() criarEstacionamentoDto: PlacaDto) {
+  @Post()
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async criar(@Body() criarDadoDto: CriarDadoDto) {
     try {
-      const estacionamento =
-        await this.estacionamentoService.criarEstacionamento(
-          criarEstacionamentoDto.placa,
-        );
-      console.log('Placa registrada com sucesso:', estacionamento.placa);
-
-      return estacionamento;
+      const dado = await this.etlService.criarDado(criarDadoDto.valorOriginal);
+      return dado;
     } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
+      if (error.code === 11000) {
+        // Erro de duplicidade no MongoDB
+        throw new HttpException("Dado já cadastrado", HttpStatus.CONFLICT);
       } else {
         throw new HttpException(
-          'Erro ao registrar a placa',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          "Erro ao registrar o dado",
+          HttpStatus.INTERNAL_SERVER_ERROR
         );
       }
     }
   }
 
-  @Get('/listar-placas')
-  async listarPlacas() {
-    try {
-      const placas = await this.estacionamentoService.listarEstacionamentos();
-      return {
-        message: 'Placas listadas com sucesso',
-        data: placas,
-      };
-    } catch (error) {
-      throw new HttpException(
-        'Erro ao listar placas',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+  @Get("listar-dados-transformados")
+  async listarDadosTransformados(): Promise<DadoTransformadoDto[]> {
+    const dados = await this.etlService.listarDadosTransformados();
+    return dados;
   }
 }

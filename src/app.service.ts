@@ -1,29 +1,50 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { Cron } from "@nestjs/schedule";
+import { Dado, DadoDocument } from "./schemas/dado.schema";
 import {
-  Estacionamento,
-  EstacionamentoDocument,
-} from '../schemas/estacionamento.schema';
-import { PlacaDto } from './dto/criar-estacionamento.dto';
+  DadoTransformado,
+  DadoTransformadoDocument,
+} from "./schemas/dadoTransformado.schema";
+import { DadoTransformadoDto } from "./schemas/dadoTransformado.dto";
+
 @Injectable()
-export class EstacionamentoService {
+export class EtlService {
   constructor(
-    @InjectModel(Estacionamento.name)
-    private estacionamentoModel: Model<EstacionamentoDocument>,
+    @InjectModel(Dado.name) private dadoModel: Model<DadoDocument>,
+    @InjectModel(DadoTransformado.name, "cluster2")
+    private dadoTransformadoModel: Model<DadoTransformadoDocument>
   ) {}
 
-  async criarEstacionamento(placa: string) {
-    const novaPlaca = new this.estacionamentoModel({ placa });
-    return novaPlaca.save();
+  async criarDado(valorOriginal: string): Promise<Dado> {
+    const novoDado = new this.dadoModel({ valorOriginal });
+    return novoDado.save();
   }
-  async listarEstacionamentos(): Promise<PlacaDto[]> {
-    const estacionamentos = await this.estacionamentoModel
-      .find()
-      .sort({ entrada: 1 })
-      .exec();
-    return estacionamentos.map((estacionamento) => ({
-      placa: estacionamento.placa,
+
+  async listarDadosTransformados(): Promise<DadoTransformadoDto[]> {
+    const dadosTransformados = await this.dadoTransformadoModel.find().exec();
+    return dadosTransformados.map((dado) => ({
+      valorTransformado: dado.valorTransformado,
     }));
+  }
+
+  @Cron("0 * * * *") // Executa a cada hora
+  async realizarEtl() {
+    const dados = await this.dadoModel.find().exec();
+    const dadosTransformados = dados.map((dado) => {
+      const valorOriginal = dado.valorOriginal;
+
+      // Lógica de transformação dos dados (substituição de números por letras, lógica simples apenas pra mostrar o ETL funcionando)
+      const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const valorTransformado = valorOriginal.replace(
+        /\d/g,
+        (numero) => letras[parseInt(numero) - 1]
+      );
+
+      return { valorTransformado };
+    });
+
+    await this.dadoTransformadoModel.insertMany(dadosTransformados);
   }
 }

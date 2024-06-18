@@ -23,14 +23,15 @@
 /// <reference types="mongoose/types/virtuals" />
 /// <reference types="mongoose/types/inferschematype" />
 /// <reference types="mongoose/types/inferrawdoctype" />
-import { Model } from 'mongoose';
-import { Estacionamento, EstacionamentoDocument } from '../schemas/estacionamento.schema';
-import { PlacaDto } from './dto/criar-estacionamento.dto';
-export declare class EstacionamentoService {
-    private estacionamentoModel;
-    constructor(estacionamentoModel: Model<EstacionamentoDocument>);
-    criarEstacionamento(placa: string): Promise<import("mongoose").Document<unknown, {}, EstacionamentoDocument> & Estacionamento & import("mongoose").Document<unknown, any, any> & Required<{
-        _id: unknown;
-    }>>;
-    listarEstacionamentos(): Promise<PlacaDto[]>;
+import { Model } from "mongoose";
+import { Dado, DadoDocument } from "./schemas/dado.schema";
+import { DadoTransformadoDocument } from "./schemas/dadoTransformado.schema";
+import { DadoTransformadoDto } from "./schemas/dadoTransformado.dto";
+export declare class EtlService {
+    private dadoModel;
+    private dadoTransformadoModel;
+    constructor(dadoModel: Model<DadoDocument>, dadoTransformadoModel: Model<DadoTransformadoDocument>);
+    criarDado(valorOriginal: string): Promise<Dado>;
+    listarDadosTransformados(): Promise<DadoTransformadoDto[]>;
+    realizarEtl(): Promise<void>;
 }

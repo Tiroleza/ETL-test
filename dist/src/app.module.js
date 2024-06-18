@@ -10,9 +10,11 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
-const database_module_1 = require("./database/database.module");
 const mongoose_1 = require("@nestjs/mongoose");
-const estacionamento_schema_1 = require("../schemas/estacionamento.schema");
+const dado_schema_1 = require("./schemas/dado.schema");
+const dadoTransformado_schema_1 = require("./schemas/dadoTransformado.schema");
+const database_module_1 = require("./database/database.module");
+const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -20,12 +22,12 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             database_module_1.DatabaseModule,
-            mongoose_1.MongooseModule.forFeature([
-                { name: 'Estacionamento', schema: estacionamento_schema_1.EstacionamentoSchema },
-            ]),
+            mongoose_1.MongooseModule.forFeature([{ name: dado_schema_1.Dado.name, schema: dado_schema_1.DadoSchema }]),
+            mongoose_1.MongooseModule.forFeature([{ name: dadoTransformado_schema_1.DadoTransformado.name, schema: dadoTransformado_schema_1.DadoTransformadoSchema }], "cluster2"),
+            schedule_1.ScheduleModule.forRoot(),
         ],
-        controllers: [app_controller_1.EstacionamentoController],
-        providers: [app_service_1.EstacionamentoService],
+        controllers: [app_controller_1.EtlController],
+        providers: [app_service_1.EtlService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

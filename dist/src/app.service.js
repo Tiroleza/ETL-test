@@ -12,33 +12,51 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EstacionamentoService = void 0;
+exports.EtlService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-const estacionamento_schema_1 = require("../schemas/estacionamento.schema");
-let EstacionamentoService = class EstacionamentoService {
-    constructor(estacionamentoModel) {
-        this.estacionamentoModel = estacionamentoModel;
+const schedule_1 = require("@nestjs/schedule");
+const dado_schema_1 = require("./schemas/dado.schema");
+const dadoTransformado_schema_1 = require("./schemas/dadoTransformado.schema");
+let EtlService = class EtlService {
+    constructor(dadoModel, dadoTransformadoModel) {
+        this.dadoModel = dadoModel;
+        this.dadoTransformadoModel = dadoTransformadoModel;
     }
-    async criarEstacionamento(placa) {
-        const novaPlaca = new this.estacionamentoModel({ placa });
-        return novaPlaca.save();
+    async criarDado(valorOriginal) {
+        const novoDado = new this.dadoModel({ valorOriginal });
+        return novoDado.save();
     }
-    async listarEstacionamentos() {
-        const estacionamentos = await this.estacionamentoModel
-            .find()
-            .sort({ entrada: 1 })
-            .exec();
-        return estacionamentos.map((estacionamento) => ({
-            placa: estacionamento.placa,
+    async listarDadosTransformados() {
+        const dadosTransformados = await this.dadoTransformadoModel.find().exec();
+        return dadosTransformados.map((dado) => ({
+            valorTransformado: dado.valorTransformado,
         }));
     }
+    async realizarEtl() {
+        const dados = await this.dadoModel.find().exec();
+        const dadosTransformados = dados.map((dado) => {
+            const valorOriginal = dado.valorOriginal;
+            const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const valorTransformado = valorOriginal.replace(/\d/g, (numero) => letras[parseInt(numero) - 1]);
+            return { valorTransformado };
+        });
+        await this.dadoTransformadoModel.insertMany(dadosTransformados);
+    }
 };
-exports.EstacionamentoService = EstacionamentoService;
-exports.EstacionamentoService = EstacionamentoService = __decorate([
+exports.EtlService = EtlService;
+__decorate([
+    (0, schedule_1.Cron)("0 * * * *"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], EtlService.prototype, "realizarEtl", null);
+exports.EtlService = EtlService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, mongoose_1.InjectModel)(estacionamento_schema_1.Estacionamento.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
-], EstacionamentoService);
+    __param(0, (0, mongoose_1.InjectModel)(dado_schema_1.Dado.name)),
+    __param(1, (0, mongoose_1.InjectModel)(dadoTransformado_schema_1.DadoTransformado.name, "cluster2")),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model])
+], EtlService);
 //# sourceMappingURL=app.service.js.map
