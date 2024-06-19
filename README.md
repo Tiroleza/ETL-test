@@ -25,7 +25,9 @@
 ## Alunos
 
 Beatriz Meloni Meneghetti   RA: 18079053
+
 Felipe Tiroleza Biancalana  RA: 20130555
+
 Rafael Elias Correa         RA: 18726497
 
 ## Description
