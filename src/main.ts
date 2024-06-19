@@ -21,6 +21,6 @@ async function bootstrap() {
 
   const etlService = app.get(EtlService);
   await etlService.realizarEtl();
-  setInterval(() => etlService.realizarEtl(), 10000); // 3600000 ms = 1 hora
+  setInterval(() => etlService.realizarEtl(), 5000); // 3600000 ms = 1 hora
 }
 bootstrap();

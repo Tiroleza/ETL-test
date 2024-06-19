@@ -18,7 +18,7 @@ async function bootstrap() {
     console.log("Aplicação está rodando na porta 3000.");
     const etlService = app.get(app_service_1.EtlService);
     await etlService.realizarEtl();
-    setInterval(() => etlService.realizarEtl(), 10000);
+    setInterval(() => etlService.realizarEtl(), 5000);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

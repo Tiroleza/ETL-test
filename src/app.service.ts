@@ -15,7 +15,7 @@ interface DadoWithTransformed extends Dado {
 
 @Injectable()
 export class EtlService {
-  private primeiroExecutado = false;
+  private etlExecutado = false;
 
   constructor(
     @InjectModel(Dado.name, "cluster1")
@@ -47,72 +47,46 @@ export class EtlService {
 
   @Cron(CronExpression.EVERY_HOUR)
   async realizarEtl() {
-    if (!this.primeiroExecutado) {
-      // Executa apenas um dado na inicialização
-      console.log("Iniciando processo ETL...");
+    if (this.etlExecutado) {
+      console.log("Já foi realizado um ETL nesta execução.");
+      return;
+    }
 
-      const dadoNaoTransformado = await this.dadoModel
-        .findOne({
-          transformado: { $ne: true }, // Encontra apenas dados não transformados
-        })
-        .exec();
+    console.log("Iniciando processo ETL...");
 
-      if (!dadoNaoTransformado) {
-        console.log("Todos os dados do cluster 1 já foram transformados.");
-        return;
-      }
+    const dadosNaoTransformados = await this.dadoModel
+      .find({
+        transformado: { $ne: true }, // Filtra apenas os dados não transformados
+      })
+      .exec();
 
-      const valorOriginal = dadoNaoTransformado.valorOriginal;
+    if (dadosNaoTransformados.length === 0) {
+      console.log("Todos os dados do cluster 1 já foram transformados.");
+      return;
+    }
+
+    for (const dado of dadosNaoTransformados) {
+      const valorOriginal = dado.valorOriginal;
+
+      // Lógica de transformação usando Cifra de César
       const shift = 3; // Valor fixo de deslocamento
       const valorTransformado = this.caesarCipher(valorOriginal, shift);
 
+      // Armazena o dado transformado no cluster 2
       await new this.dadoTransformadoModel({
         valorOriginal,
         valorTransformado,
       }).save();
 
-      // Marca o dado como transformado no cluster 1
-      dadoNaoTransformado.transformado = true;
-      await dadoNaoTransformado.save();
-
-      console.log(
-        `Dado original: ${valorOriginal} -> Dado transformado: ${valorTransformado}`
-      );
-      console.log("Dado transformado e armazenado no cluster 2.");
-
-      this.primeiroExecutado = true; // Marca que o primeiro dado foi transformado
-    } else {
-      // Executa um dado por vez a cada hora
-      console.log("Iniciando processo ETL...");
-
-      const dadoNaoTransformado = await this.dadoModel
-        .findOne({
-          transformado: { $ne: true }, // Encontra apenas dados não transformados
-        })
-        .exec();
-
-      if (!dadoNaoTransformado) {
-        console.log("Todos os dados do cluster 1 já foram transformados.");
-        return;
-      }
-
-      const valorOriginal = dadoNaoTransformado.valorOriginal;
-      const shift = 3; // Valor fixo de deslocamento
-      const valorTransformado = this.caesarCipher(valorOriginal, shift);
-
-      await new this.dadoTransformadoModel({
-        valorOriginal,
-        valorTransformado,
-      }).save();
-
-      // Marca o dado como transformado no cluster 1
-      dadoNaoTransformado.transformado = true;
-      await dadoNaoTransformado.save();
+      dado.transformado = true;
+      await dado.save();
 
       console.log(
         `Dado original: ${valorOriginal} -> Dado transformado: ${valorTransformado}`
       );
       console.log("Dado transformado e armazenado no cluster 2.");
     }
+
+    this.etlExecutado = true;
   }
 }
