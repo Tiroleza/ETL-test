@@ -24,7 +24,6 @@ export class EtlController {
       return dado;
     } catch (error) {
       if (error.code === 11000) {
-        // Erro de duplicidade no MongoDB
         throw new HttpException("Dado já cadastrado", HttpStatus.CONFLICT);
       } else {
         throw new HttpException(

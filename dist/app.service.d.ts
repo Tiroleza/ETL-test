@@ -24,14 +24,20 @@
 /// <reference types="mongoose/types/inferschematype" />
 /// <reference types="mongoose/types/inferrawdoctype" />
 import { Model } from "mongoose";
-import { Dado } from "./schemas/dado.schema";
-import { DadoTransformado } from "./schemas/dadoTransformado.schema";
+import { Dado, DadoDocument } from "./schemas/dado.schema";
+import { DadoTransformadoDocument } from "./schemas/dadoTransformado.schema";
 import { DadoTransformadoDto } from "./schemas/dadoTransformado.dto";
+interface DadoWithTransformed extends Dado {
+    transformado: boolean;
+}
 export declare class EtlService {
     private readonly dadoModel;
     private readonly dadoTransformadoModel;
-    constructor(dadoModel: Model<Dado>, dadoTransformadoModel: Model<DadoTransformado>);
+    private etlExecutado;
+    constructor(dadoModel: Model<DadoDocument & DadoWithTransformed>, dadoTransformadoModel: Model<DadoTransformadoDocument>);
     criarDado(valorOriginal: string): Promise<Dado>;
     listarDadosTransformados(): Promise<DadoTransformadoDto[]>;
+    caesarCipher(str: string, shift: number): string;
     realizarEtl(): Promise<void>;
 }
+export {};

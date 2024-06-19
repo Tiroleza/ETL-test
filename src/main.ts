@@ -1,20 +1,26 @@
 import { NestFactory } from "@nestjs/core";
 import { EtlModule } from "./etl.module";
 import * as bodyParser from "body-parser";
-import { ValidationPipe } from "@nestjs/common"; // Import ValidationPipe from @nestjs/common package
+import { ValidationPipe } from "@nestjs/common";
+import { EtlService } from "./app.service";
 
 async function bootstrap() {
   const app = await NestFactory.create(EtlModule);
 
   app.use(bodyParser.json());
-  app.enableCors(); //por estar em duas portas diferentes, é necessário habilitar o CORS
+  app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Remove propriedades não especificadas no DTO
-      forbidNonWhitelisted: true, // Retorna erro se houver propriedades não especificadas
-      transform: true, // Transforma o payload para o tipo especificado no DTO
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     })
   );
   await app.listen(3000);
+  console.log("Aplicação está rodando na porta 3000.");
+
+  const etlService = app.get(EtlService);
+  await etlService.realizarEtl();
+  setInterval(() => etlService.realizarEtl(), 10000); // 3600000 ms = 1 hora
 }
 bootstrap();

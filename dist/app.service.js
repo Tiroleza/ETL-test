@@ -23,6 +23,7 @@ let EtlService = class EtlService {
     constructor(dadoModel, dadoTransformadoModel) {
         this.dadoModel = dadoModel;
         this.dadoTransformadoModel = dadoTransformadoModel;
+        this.etlExecutado = false;
     }
     async criarDado(valorOriginal) {
         const novoDado = new this.dadoModel({ valorOriginal });
@@ -34,20 +35,46 @@ let EtlService = class EtlService {
             valorTransformado: dado.valorTransformado,
         }));
     }
-    async realizarEtl() {
-        const dados = await this.dadoModel.find().exec();
-        const dadosTransformados = dados.map((dado) => {
-            const valorOriginal = dado.valorOriginal;
-            const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const valorTransformado = valorOriginal.replace(/\d/g, (numero) => letras[parseInt(numero) - 1]);
-            return { valorTransformado };
+    caesarCipher(str, shift) {
+        return str.toUpperCase().replace(/[A-Z]/g, (char) => {
+            const start = 65;
+            return String.fromCharCode(((char.charCodeAt(0) - start + shift) % 26) + start);
         });
-        await this.dadoTransformadoModel.insertMany(dadosTransformados);
+    }
+    async realizarEtl() {
+        if (this.etlExecutado) {
+            console.log("Já foi realizado um ETL nesta execução.");
+            return;
+        }
+        console.log("Iniciando processo ETL...");
+        const dadosNaoTransformados = await this.dadoModel
+            .find({
+            transformado: { $ne: true },
+        })
+            .exec();
+        if (dadosNaoTransformados.length === 0) {
+            console.log("Todos os dados do cluster 1 já foram transformados.");
+            return;
+        }
+        for (const dado of dadosNaoTransformados) {
+            const valorOriginal = dado.valorOriginal;
+            const shift = 3;
+            const valorTransformado = this.caesarCipher(valorOriginal, shift);
+            await new this.dadoTransformadoModel({
+                valorOriginal,
+                valorTransformado,
+            }).save();
+            dado.transformado = true;
+            await dado.save();
+            console.log(`Dado original: ${valorOriginal} -> Dado transformado: ${valorTransformado}`);
+            console.log("Dado transformado e armazenado no cluster 2.");
+        }
+        this.etlExecutado = true;
     }
 };
 exports.EtlService = EtlService;
 __decorate([
-    (0, schedule_1.Cron)("0 * * * *"),
+    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_HOUR),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
