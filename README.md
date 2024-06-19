@@ -24,13 +24,17 @@
 
 ## Alunos
 
-Beatriz Meloni Meneghetti   RA: 18079053
+Beatriz Meloni Meneghetti RA: 18079053
 
-Felipe Tiroleza Biancalana  RA: 20130555
+Felipe Tiroleza Biancalana RA: 20130555
 
-Rafael Elias Correa         RA: 18726497
+Rafael Elias Correa RA: 18726497
 
 ## Description
+
+O intuito desta aplicação seria mostrar na prática um processo ETL (Extract Transform Load), onde
+fazemos a extração de uma variável "dado" de um cluster(1), criptografamos em cifra de César,
+e enviamos para o cluster(2) a mensagem criptografada
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
@@ -53,18 +57,7 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
+(caso execute muitas vezes, passível de erro por duplicação no banco de dados)
 
 ## Support
 
